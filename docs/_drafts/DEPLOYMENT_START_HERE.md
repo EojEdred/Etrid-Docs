@@ -1,9 +1,18 @@
-# START HERE - AI Monitoring Agent Deployment Package***NEEDTOUPDATE**
+# START HERE - AI Monitoring Agent Deployment Package
 
 **Status:** Ready for Deployment
 **Created:** 2025-11-01
 **Target:** 15 Remaining Validator VMs
 **Primary Server:** VM #10 (98.71.91.84)
+
+---
+
+## Path Assumptions
+
+- `ETRID_DOCS=/Users/macbook/Desktop/etrid-workspace/etrid-docs`
+- `MONITORING_ROOT` points to the external monitoring repo that contains:
+  - `deploy-monitoring-agents-parallel.sh`
+  - `ai-monitoring/` (agent sources)
 
 ---
 
@@ -20,11 +29,13 @@ You now have a complete, production-ready deployment package for rolling out lig
 
 ---
 
-## Documentation Files ()
+## Documentation Files
 
 | File | Size | Purpose | Read Time |
 |------|------|---------|-----------|
-| START_HERE.md | This file | Navigation guide | 5 min |
+| `docs/deployment/*(NEEDTOUPDATE)START_HERE.md` | This file | Navigation guide | 5 min |
+| `docs/deployment/*(needtoUpdate)AGENT_DEPLOYMENT_GUIDE.md` | Deployment guide | 15 min |
+| `docs/deployment/*(needtoupdate)AGENTDEPLOYMENTCHECKLIST.md` | Checklist | 10 min |
 
 
 ---
@@ -39,7 +50,7 @@ Should show "active (running)"
 
 ### Step 2: Run Deployment (20 minutes)
 ```bash
-bash /Users/macbook/Desktop/etrid/deploy-monitoring-agents-parallel.sh
+bash "$MONITORING_ROOT/deploy-monitoring-agents-parallel.sh"
 ```
 
 ### Step 3: Verify Success (10 minutes)
@@ -96,11 +107,9 @@ You'll know it worked when:
 
 | File | Purpose |
 |------|---------|
-| deploy-monitoring-agents-parallel.sh | Main deployment script (executable) |
-| EXECUTIVE_SUMMARY.md | Overview & business case |
-| AGENT_DEPLOYMENT_GUIDE.md | Complete documentation |
-| DEPLOYMENT_CHECKLIST.md | Step-by-step verification |
-| QUICK_DEPLOYMENT_REFERENCE.md | Command reference |
+| `deploy-monitoring-agents-parallel.sh` | Main deployment script (external repo) |
+| `docs/deployment/*(needtoUpdate)AGENT_DEPLOYMENT_GUIDE.md` | Complete documentation |
+| `docs/deployment/*(needtoupdate)AGENTDEPLOYMENTCHECKLIST.md` | Step-by-step verification |
 
 ---
 
@@ -114,7 +123,7 @@ chmod 600 ~/.ssh/etrid_vm1
 
 ### Script won't run
 ```bash
-chmod +x /Users/macbook/Desktop/etrid/deploy-monitoring-agents-parallel.sh
+chmod +x "$MONITORING_ROOT/deploy-monitoring-agents-parallel.sh"
 ```
 
 ### Agent not running on a VM
@@ -138,11 +147,8 @@ journalctl -u etrid-agent -n 50
 
 ## Help & Support
 
-- **Quick answers:** EXECUTIVE_SUMMARY.md
-- **How to deploy:** MAINNET_DEPLOYMENT_GUIDE.md
-- **Complete details:** 
-- **Verification:** DEPLOYMENT_CHECKLIST.md
-- **Troubleshooting:**  (Troubleshooting section)
+- **How to deploy:** `docs/deployment/*(needtoUpdate)AGENT_DEPLOYMENT_GUIDE.md`
+- **Verification:** `docs/deployment/*(needtoupdate)AGENTDEPLOYMENTCHECKLIST.md`
 
 ---
 

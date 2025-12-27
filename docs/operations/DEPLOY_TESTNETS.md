@@ -35,29 +35,25 @@ You'll need testnet ETH/tokens for gas:
 ### Step 2: Deploy to Single Testnet (Sepolia)
 
 ```bash
-cd /Users/macbook/Desktop/etrid/05-multichain/unified-contracts
+cd /Users/macbook/Desktop/etrid-workspace/etrid/contracts/ethereum
 
 # Deploy to Sepolia
-npm run deploy:ethereum
+npm run deploy:sepolia
 
-# Or specifically to Sepolia if we add the network
-npx hardhat run scripts/deploy-all.js --network sepolia
+# Or explicitly
+npx hardhat run scripts/deploy.js --network sepolia
 ```
 
-### Step 3: Deploy to All Testnets
+### Step 3: Deploy to Multiple Testnets
 
 ```bash
-# Deploy to all testnets at once
-npm run deploy:all-testnets
+# Deploy per network (ensure each network is configured in hardhat.config.js)
+npx hardhat run scripts/deploy.js --network sepolia
+npx hardhat run scripts/deploy-bsc.js --network bsc
+npx hardhat run scripts/deploy.js --network base
 ```
 
-This will deploy to:
-- Ethereum Sepolia
-- BNB Testnet
-- Polygon Mumbai
-- Arbitrum Sepolia
-- Base Sepolia
-- Optimism Sepolia (if configured)
+This will deploy to the networks configured in `hardhat.config.js` (Sepolia, BNB, Base, etc.).
 
 ### Step 4: Verify Contracts
 
@@ -78,11 +74,14 @@ If you want to use ETH PBC specifically:
 ### Option A: Start Local ETH PBC Node
 
 ```bash
-# Start ETH PBC with EVM RPC enabled
-/Users/macbook/Desktop/etrid/START_ETH_PBC_LOCAL.sh
+# Build and start ETH PBC with EVM RPC enabled
+cd /Users/macbook/Desktop/etrid-workspace/etrid/05-multichain/partition-burst-chains/pbc-chains/eth-pbc
+cargo build --release -p eth-pbc-collator
+# Use the flags from DEPLOYMENT_INSTRUCTIONS.md to enable EVM RPC
+# Path: /Users/macbook/Desktop/etrid-workspace/etrid/05-multichain/partition-burst-chains/pbc-chains/eth-pbc/DEPLOYMENT_INSTRUCTIONS.md
 
 # Then deploy
-npm run deploy:eth-pbc
+npx hardhat run scripts/deploy.js --network ethPBC
 ```
 
 ### Option B: Configure Remote ETH PBC Node
@@ -100,27 +99,29 @@ Contact whoever manages `163.192.125.23` to enable EVM RPC.
 ```bash
 # 1. Get Sepolia testnet ETH from faucet
 # 2. Deploy to Sepolia
-npm run deploy:ethereum  # Uses demo RPC, works immediately
+npm run deploy:sepolia  # Uses Sepolia config in hardhat.config.js
 ```
 
 **Path 2: Full Multi-Chain** (30 minutes)
 ```bash
 # 1. Get testnet tokens for all chains
-# 2. Deploy to all testnets
-npm run deploy:all-testnets
+# 2. Deploy per testnet (repeat per network)
+npx hardhat run scripts/deploy.js --network sepolia
+npx hardhat run scripts/deploy-bsc.js --network bsc
+npx hardhat run scripts/deploy.js --network base
 ```
 
 **Path 3: Local ETH PBC** (10 minutes)
 ```bash
 # 1. Build ETH PBC collator (if needed)
-cd /Users/macbook/Desktop/etrid/05-multichain/partition-burst-chains/pbc-node/pbc-collator-nodes/eth-pbc-collator
-cargo build --release
+cd /Users/macbook/Desktop/etrid-workspace/etrid/05-multichain/partition-burst-chains/pbc-chains/eth-pbc
+cargo build --release -p eth-pbc-collator
 
-# 2. Start with EVM RPC
-./START_ETH_PBC_LOCAL.sh
+# 2. Start with EVM RPC (see DEPLOYMENT_INSTRUCTIONS.md for flags)
+./target/release/eth-pbc-collator --dev --tmp
 
 # 3. Deploy
-npm run deploy:eth-pbc
+npx hardhat run scripts/deploy.js --network ethPBC
 ```
 
 ## 🎯 What I Recommend
@@ -140,11 +141,11 @@ Once Sepolia works, you can deploy to other testnets or configure ETH PBC proper
 
 Just run:
 ```bash
-cd /Users/macbook/Desktop/etrid/05-multichain/unified-contracts
-npm run deploy:ethereum
+cd /Users/macbook/Desktop/etrid-workspace/etrid/contracts/ethereum
+npm run deploy:sepolia
 ```
 
-This will deploy all 5 contracts to Ethereum's Sepolia testnet using the free demo RPC!
+This will deploy all 5 contracts to Ethereum's Sepolia testnet using your configured RPC.
 
 **Time**: 3-5 minutes  
 **Cost**: Free (uses demo RPC)  

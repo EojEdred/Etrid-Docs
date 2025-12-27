@@ -1,9 +1,18 @@
-# ËTRID Agent Deployment Checklist***needto update**
+# Ëtrid Agent Deployment Checklist
 
 **Project:** Rolling out AI monitoring to 15 remaining VMs
 **Primary Server:** VM #10 (compiler-dev01@98.71.91.84)
 **Deployment Type:** Parallel (all VMs simultaneously)
 **Status:** Ready to Deploy
+
+---
+
+## Path Assumptions
+
+- `ETRID_DOCS=/Users/macbook/Desktop/etrid-workspace/etrid-docs`
+- `MONITORING_ROOT` points to the external monitoring repo that contains:
+  - `deploy-monitoring-agents-parallel.sh`
+  - `ai-monitoring/` (agent sources)
 
 ---
 
@@ -19,9 +28,9 @@
 - [ ] No firewall blocking SSH port 22 on any VM
 
 ### Files Verification
-- [ ] Deployment script exists: `/Users/macbook/Desktop/etrid/deploy-monitoring-agents-parallel.sh`
-- [ ] Deployment guide exists: `/Users/macbook/Desktop/etrid/AGENT_DEPLOYMENT_GUIDE.md`
-- [ ] AI monitoring directory exists: `/Users/macbook/Desktop/etrid/ai-monitoring/`
+- [ ] Deployment script exists: `$MONITORING_ROOT/deploy-monitoring-agents-parallel.sh`
+- [ ] Deployment guide exists: `docs/deployment/*(needtoUpdate)AGENT_DEPLOYMENT_GUIDE.md`
+- [ ] AI monitoring directory exists: `$MONITORING_ROOT/ai-monitoring/`
 - [ ] Python files present:
   - [ ] `validator_monitor.py`
   - [ ] `orchestrator.py`
@@ -57,7 +66,7 @@ Test a sample of the 15 VMs:
 
 ### Running the Deployment
 - [ ] Make script executable: `chmod +x deploy-monitoring-agents-parallel.sh`
-- [ ] Execute script: `bash /Users/macbook/Desktop/etrid/deploy-monitoring-agents-parallel.sh`
+- [ ] Execute script: `bash "$MONITORING_ROOT/deploy-monitoring-agents-parallel.sh"`
 - [ ] Monitor console output for progress
 - [ ] Note any errors (will be displayed in real-time)
 - [ ] Expected duration: 15-25 minutes

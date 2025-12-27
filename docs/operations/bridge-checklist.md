@@ -15,10 +15,10 @@ This document outlines the deployment requirements for the Etrid cross-chain bri
 ┌─────────────────────────────────────────────────────────────────┐
 │                    PRIMEARC CORE CHAIN                          │
 ├─────────────────────────────────────────────────────────────────┤
-│  pallet-etr-lock           │  pallet-edsc-bridge-token-messenger │
-│  (Lock ETR for bridging)   │  (Burn/Mint EDSC cross-chain)       │
+│  pallet-etr-lock           │  pallet-token-messenger             │
+│  (Lock ETR for bridging)   │  (Burn/Mint EDSC cross-chain)        │
 │                            │                                      │
-│  pallet-edsc-token         │  pallet-edsc-bridge-attestation      │
+│  pallet-edsc-token         │  pallet-bridge-attestation           │
 │  (EDSC token operations)   │  (M-of-N signature verification)     │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -66,8 +66,8 @@ This document outlines the deployment requirements for the Etrid cross-chain bri
 ### Phase 1: Substrate Side (Already Complete)
 
 - [x] `pallet-edsc-token` - EDSC token operations
-- [x] `pallet-edsc-bridge-attestation` - Attester registry
-- [x] `pallet-edsc-bridge-token-messenger` - Cross-chain messaging
+- [x] `pallet-bridge-attestation` - Attester registry
+- [x] `pallet-token-messenger` - Cross-chain messaging
 - [x] `pallet-etr-lock` - ETR locking for bridges
 - [x] Runtime configuration in `primearc-core-chain/runtime/src/lib.rs`
 
@@ -233,16 +233,11 @@ uint256 public constant MAX_MINT_PER_DAY = 1_000_000 * 10**18;  // 1M ETR
 ### Substrate (Rust)
 
 1. `/05-multichain/primearc-core-chain/runtime/src/lib.rs`
-   - Added `EdscTokenOperations` trait implementation
-   - Added `EdscBridgeAttestationVerifier` trait implementation
-   - Configured `pallet_edsc_bridge_token_messenger`
-   - Renamed `FlareMax*` to `PrimearcMax*` parameters
+   - Configured `pallet-token-messenger` and `pallet-bridge-attestation`
+   - Wired `TokenOperations` and `BridgeAttestationVerifier`
 
 2. `/05-multichain/pallets-shared/pallet-token-messenger/src/lib.rs`
-   - Renamed `FlareChain` to `PrimearcCore` in Domain enum
-
-3. `/05-multichain/partition-burst-chains/pbc-chains/*/collator/src/service.rs`
-   - Updated comments to reference "Primearc Core Chain"
+   - Generic cross-chain message support (CCTP-style)
 
 ### Solidity
 
@@ -253,8 +248,8 @@ uint256 public constant MAX_MINT_PER_DAY = 1_000_000 * 10**18;  // 1M ETR
 
 ## Testing Checklist
 
-- [ ] Unit tests for pallet-edsc-bridge-token-messenger
-- [ ] Unit tests for pallet-edsc-bridge-attestation
+- [ ] Unit tests for pallet-token-messenger
+- [ ] Unit tests for pallet-bridge-attestation
 - [ ] Integration tests for Primearc ↔ PBC communication
 - [ ] E2E test: Lock ETR on Primearc → Mint wETR on Ethereum
 - [ ] E2E test: Burn wETR on Ethereum → Unlock ETR on Primearc

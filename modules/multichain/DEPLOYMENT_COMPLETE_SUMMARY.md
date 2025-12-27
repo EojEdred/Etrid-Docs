@@ -7,40 +7,32 @@ A comprehensive, production-ready smart contract deployment system that leverage
 ## 📁 Project Structure
 
 ```
-/Users/macbook/Desktop/etrid/05-multichain/unified-contracts/
+/Users/macbook/Desktop/etrid-workspace/etrid/contracts/ethereum/
 │
-├── contracts/
-│   ├── tokens/
-│   │   ├── WrappedETR.sol              ← ERC20 wrapper for ETR
-│   │   ├── EDSC.sol                    ← Stablecoin for bridges
-│   │   └── TokenMessenger.sol          ← Bridge messaging (3-of-5 oracles)
-│   ├── bridges/
-│   │   └── ETHPBCBridgeAdapter.sol     ← MasterChef ↔ Primearc Core Chain bridge
-│   └── defi/
-│       └── MasterChef.sol              ← Yield farming contract
+├── src/
+│   ├── ETR_Ethereum.sol                ← ERC20 wrapper for ETR
+│   ├── EDSC.sol                        ← Stablecoin for bridges
+│   ├── EDSCTokenMessenger.sol          ← Burn-and-send (EVM → Primearc)
+│   ├── EDSCMessageTransmitter.sol      ← Receive-and-mint (Primearc → EVM)
+│   ├── AttesterRegistry.sol            ← Attester management + thresholds
+│   └── EtridBridge.sol                 ← ETR bridge with watchtowers
 │
 ├── scripts/
-│   ├── deploy-all.js                   ← Deploy to single chain
-│   ├── deploy-multi-chain.js           ← Deploy to multiple chains
-│   └── configure-oracles.js            ← Set up oracle network
+│   ├── deploy.js                       ← Core deployment
+│   ├── deploy-bsc.js                   ← BSC deployment
+│   ├── deploy-attester-registry.js     ← Attester registry deployment
+│   └── register-attesters.js           ← Attester registration
 │
-├── test/
-│   └── WrappedETR.test.js             ← Contract tests
-│
-├── deployments/                        ← JSON records of deployments
-│
-├── hardhat.config.ts                   ← Multi-chain network configs
+├── hardhat.config.js                   ← Network configs
 ├── package.json                        ← Dependencies & scripts
-├── .env.example                        ← Configuration template
-├── README.md                           ← Full documentation
-└── QUICKSTART.md                       ← 10-minute deployment guide
+└── README.md                           ← Documentation
 ```
 
 ## 🎯 Key Features
 
 ### 1. Smart Contracts
 
-**WrappedETR.sol** (330 lines)
+**ETR_Ethereum.sol** (330 lines)
 - ERC20 token with bridge minting/burning
 - Role-based access control (MINTER, BURNER, PAUSER)
 - Emergency pause functionality
@@ -49,18 +41,21 @@ A comprehensive, production-ready smart contract deployment system that leverage
 
 **EDSC.sol** (220 lines)
 - Stablecoin for cross-chain transfers
-- Daily mint rate limiting (1M EDSC/day)
-- 3-of-5 oracle attestation required
-- 6 decimals (USDC compatible)
+- Minting gated via `EDSCMessageTransmitter`
+- Attester threshold enforced in `AttesterRegistry`
 - Pausable for emergencies
 
-**TokenMessenger.sol** (350 lines)
-- Cross-chain messaging protocol
-- Burn-and-mint mechanism
-- 3-of-5 multisig oracle verification
+**EDSCTokenMessenger.sol** (350 lines)
+- Cross-chain message creation (burn-and-send)
+- Burn-and-mint mechanism (EVM → Primearc)
 - Replay attack prevention (nonce tracking)
-- Hourly rate limiting (100k EDSC/hour per user)
-- Domain routing (7 chains)
+- Rate limiting (per-tx + daily)
+- Domain routing
+
+**EDSCMessageTransmitter.sol** (340 lines)
+- Cross-chain message reception (receive-and-mint)
+- Verifies signatures via `AttesterRegistry`
+- Replay protection via nonce tracking
 
 **MasterChef.sol** (210 lines)
 - Yield farming for LP tokens
@@ -77,43 +72,39 @@ A comprehensive, production-ready smart contract deployment system that leverage
 
 ### 2. Deployment System
 
-**deploy-all.js**
-- Deploy all contracts in correct order
+**deploy.js**
+- Deploy core contracts in correct order
 - Configure permissions automatically
 - Save deployment info to JSON
 - Comprehensive logging
 - Error handling
 
-**deploy-multi-chain.js**
-- Sequential deployment to multiple chains
-- Testnet and mainnet modes
-- Safety confirmation for mainnet
-- Detailed results summary
-- Failure handling and retry
+**deploy-bsc.js**
+- BSC-specific deployment wiring
+- Network-level configuration checks
 
-**configure-oracles.js**
-- Add 5 oracle addresses
-- Verify oracle configuration
-- Grant ORACLE_ROLE
-- Health checks
+**deploy-attester-registry.js**
+- Deploy `AttesterRegistry`
+- Initialize threshold configuration
+
+**register-attesters.js**
+- Register and enable attesters
+- Verify attester configuration
 
 ### 3. Configuration
 
-**hardhat.config.ts**
-- 15+ network configurations
-- ETH PBC (custom chain ID: 42069)
+**hardhat.config.js**
+- Multi-chain network configurations
+- ETH PBC (custom chain ID configured per environment)
 - Ethereum, BNB, Polygon, Arbitrum, Base, Optimism, Avalanche, Fantom
 - Testnet and mainnet for each
 - Gas optimization enabled
 - Contract verification API keys
 
 **package.json**
-- 15 npm scripts
-- OpenZeppelin contracts v5.0
-- Hardhat v2.19
-- TypeScript support
-- Gas reporter
-- Coverage tools
+- Hardhat scripts
+- OpenZeppelin contracts
+- Hardhat v2.x
 
 ### 4. Documentation
 
@@ -125,12 +116,12 @@ A comprehensive, production-ready smart contract deployment system that leverage
 - Testing guide
 - Network configurations
 
-**QUICKSTART.md** (200 lines)
-- 10-minute deployment walkthrough
-- Step-by-step instructions
-- Troubleshooting section
-- Expected outputs
-- Testing commands
+**EMBER_DEPLOYMENT_PLAN.md** (120 lines)
+- Testnet deployment walkthrough
+- Attester/relayer setup steps
+- Ember + Sepolia configuration
+- Verification checklist
+- Service runbook
 
 **INTEGRATION_GUIDE.md** (600 lines)
 - System architecture diagrams
@@ -145,20 +136,16 @@ A comprehensive, production-ready smart contract deployment system that leverage
 
 ```bash
 # Single chain deployment
-npm run deploy:eth-pbc      # Deploy to ETH PBC
-npm run deploy:ethereum     # Deploy to Ethereum
-npm run deploy:bsc          # Deploy to BNB Chain
+npx hardhat run scripts/deploy.js --network ethPBC
+npx hardhat run scripts/deploy.js --network mainnet
+npx hardhat run scripts/deploy-bsc.js --network bsc
 
-# Multi-chain deployment
-npm run deploy:all-testnets  # Deploy to all testnets
-npm run deploy:all-mainnets  # Deploy to all mainnets
-
-# Configuration
-npx hardhat run scripts/configure-oracles.js --network ethPBC
+# Attester configuration
+npx hardhat run scripts/deploy-attester-registry.js --network ethPBC
+npx hardhat run scripts/register-attesters.js --network ethPBC
 
 # Testing
 npm test                     # Run all tests
-npm run test:coverage        # Coverage report
 REPORT_GAS=true npm test     # Gas usage report
 ```
 
@@ -178,7 +165,7 @@ REPORT_GAS=true npm test     # Gas usage report
 
 ### 3. Security by Design
 - OpenZeppelin battle-tested libraries
-- 3-of-5 oracle multisig
+- 3-of-5 attester threshold
 - Rate limiting at multiple levels
 - Emergency pause on all contracts
 - Replay attack prevention
@@ -230,7 +217,7 @@ REPORT_GAS=true npm test     # Gas usage report
 ### Operational Level
 - Multi-sig admin recommended (Gnosis Safe)
 - Time-delayed admin actions
-- Oracle node geographic distribution
+- Attester node geographic distribution
 - Hardware wallet signers
 - Monitoring and alerting
 
@@ -242,9 +229,9 @@ REPORT_GAS=true npm test     # Gas usage report
 - Configuration: ~2 minutes per chain
 
 ### Gas Costs
-- WrappedETR: ~1M gas (~$30-50 on Ethereum)
+- ETR_Ethereum: ~1M gas (~$30-50 on Ethereum)
 - EDSC: ~800k gas (~$25-40)
-- TokenMessenger: ~2M gas (~$60-100)
+- EDSCTokenMessenger: ~2M gas (~$60-100)
 - MasterChef: ~3M gas (~$90-150)
 - BridgeAdapter: ~2M gas (~$60-100)
 
@@ -281,19 +268,19 @@ REPORT_GAS=true npm test     # Gas usage report
 ### Immediate (This Week)
 1. **Install dependencies**: `npm install`
 2. **Configure .env**: Add your private key
-3. **Deploy to testnet**: `npm run deploy:eth-pbc`
+3. **Deploy to testnet**: `npx hardhat run scripts/deploy.js --network ethPBC`
 4. **Test locally**: `npm test`
 
 ### Short-term (Next 2 Weeks)
 1. **Deploy to all testnets**: Test multi-chain functionality
-2. **Configure oracle network**: Set up 5 oracle nodes
+2. **Configure attester network**: Set up 5 attester nodes
 3. **Integration testing**: Test full cross-chain flow
 4. **Security audit**: Prepare for external audit
 
 ### Medium-term (Next Month)
 1. **Mainnet deployment**: Deploy to all 7 chains
 2. **Verify contracts**: Submit to block explorers
-3. **Set up monitoring**: Oracle health, bridge volume
+3. **Set up monitoring**: Attester health, bridge volume
 4. **Launch incentives**: Fund MasterChef with rewards
 
 ### Long-term (3+ Months)
@@ -305,10 +292,10 @@ REPORT_GAS=true npm test     # Gas usage report
 ## 📚 Documentation Index
 
 1. **README.md**: Complete project documentation
-2. **QUICKSTART.md**: 10-minute deployment guide
+2. **EMBER_DEPLOYMENT_PLAN.md**: Testnet deployment runbook
 3. **INTEGRATION_GUIDE.md**: System architecture and integration
 4. **UNIFIED_DEPLOYMENT_STRATEGY.md**: Overall strategy document
-5. **hardhat.config.ts**: Network configurations
+5. **hardhat.config.js**: Network configurations
 6. **.env.example**: Configuration template
 
 ## 🤝 Support
@@ -326,7 +313,7 @@ Before deploying to mainnet:
 - [ ] All tests passing
 - [ ] Security audit completed
 - [ ] Multi-sig wallet set up (Gnosis Safe)
-- [ ] Oracle nodes operational
+- [ ] Attester nodes operational
 - [ ] RPC endpoints configured
 - [ ] Sufficient funds for deployment
 - [ ] Emergency procedures documented
@@ -381,15 +368,15 @@ You now have a production-ready, multi-chain smart contract system that:
 ## 🎯 Ready to Deploy?
 
 ```bash
-cd /Users/macbook/Desktop/etrid/05-multichain/unified-contracts
+cd /Users/macbook/Desktop/etrid-workspace/etrid/contracts/ethereum
 npm install
 cp .env.example .env
 # Edit .env with your configuration
-npm run compile
+npx hardhat compile
 npm test
-npm run deploy:eth-pbc
+npx hardhat run scripts/deploy.js --network ethPBC
 ```
 
-See [QUICKSTART.md](./unified-contracts/QUICKSTART.md) for detailed instructions.
+See `/Users/macbook/Desktop/etrid-workspace/etrid/contracts/ethereum/README.md` and `/Users/macbook/Desktop/etrid-workspace/etrid/contracts/ethereum/EMBER_DEPLOYMENT_PLAN.md` for detailed instructions.
 
 **Let's ship it! 🚀**

@@ -1,10 +1,17 @@
-# ËTRID Monitoring Agent Deployment Guide***need to update***
+# Ëtrid Monitoring Agent Deployment Guide
 
 **Status:** Ready for deployment (waiting for VM #10 confirmation)
 
 ## Overview
 
 This guide covers the deployment of lightweight monitoring agents to 15 validator VMs, all reporting to the central monitoring server (VM #10 at 98.71.91.84).
+
+## Path Assumptions
+
+- `ETRID_DOCS=/Users/macbook/Desktop/etrid-workspace/etrid-docs`
+- `MONITORING_ROOT` points to the external monitoring repo that contains:
+  - `deploy-monitoring-agents-parallel.sh`
+  - `ai-monitoring/` (agent sources)
 
 ## Architecture
 
@@ -61,7 +68,7 @@ This guide covers the deployment of lightweight monitoring agents to 15 validato
 
 ## Deployment Script
 
-**Location:** `/Users/macbook/Desktop/etrid/deploy-monitoring-agents-parallel.sh`
+**Location:** `$MONITORING_ROOT/deploy-monitoring-agents-parallel.sh`
 
 ### Features
 
@@ -155,10 +162,10 @@ exit
 
 ```bash
 # Make script executable (if not already)
-chmod +x /Users/macbook/Desktop/etrid/deploy-monitoring-agents-parallel.sh
+chmod +x "$MONITORING_ROOT/deploy-monitoring-agents-parallel.sh"
 
 # Run the deployment
-bash /Users/macbook/Desktop/etrid/deploy-monitoring-agents-parallel.sh
+bash "$MONITORING_ROOT/deploy-monitoring-agents-parallel.sh"
 ```
 
 ### Step 3: Monitor Deployment Progress
@@ -431,12 +438,12 @@ Expected impact on each VM:
 
 | Component | Location |
 |-----------|----------|
-| Deployment Script | `/Users/macbook/Desktop/etrid/deploy-monitoring-agents-parallel.sh` |
-| This Guide | `/Users/macbook/Desktop/etrid/AGENT_DEPLOYMENT_GUIDE.md` |
-| AI Monitoring | `/Users/macbook/Desktop/etrid/ai-monitoring/` |
-| Orchestrator | `/Users/macbook/Desktop/etrid/ai-monitoring/orchestrator.py` |
-| Validator Monitor | `/Users/macbook/Desktop/etrid/ai-monitoring/validator_monitor.py` |
-| Install Script | `/Users/macbook/Desktop/etrid/install-etrid-monitoring.sh` |
+| Deployment Script | `$MONITORING_ROOT/deploy-monitoring-agents-parallel.sh` |
+| This Guide | `docs/deployment/*(needtoUpdate)AGENT_DEPLOYMENT_GUIDE.md` |
+| AI Monitoring | `$MONITORING_ROOT/ai-monitoring/` |
+| Orchestrator | `$MONITORING_ROOT/ai-monitoring/orchestrator.py` |
+| Validator Monitor | `$MONITORING_ROOT/ai-monitoring/validator_monitor.py` |
+| Install Script | `$MONITORING_ROOT/install-etrid-monitoring.sh` |
 
 ## References
 

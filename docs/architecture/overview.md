@@ -1,8 +1,8 @@
 # Ëtrid Architecture
 
-**Status**: Alpha Complete (100%)
+**Status**: Alpha (core implemented; integration in progress)
 **Version**: 1.0.0-alpha
-**Last Updated**: October 22, 2025
+**Last Updated**: October 2025 (repo-aligned)
 
 ---
 
@@ -71,51 +71,51 @@
 
 ## E³20 Protocol Components
 
-### Component 01: DETR P2P (Lightning-Bloc)
+### Component 01: DETR P2P (Network Layer)
 
-**Status**: 100% Alpha Complete
+**Status**: 🟡 Structured (core modules implemented; integration in progress)
 
-**Purpose**: Layer 2 payment channel network for instant, low-fee transactions
+**Purpose**: Secure peer-to-peer networking for node discovery, encrypted transport, routing, and message flow control.
 
 **Architecture**:
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   Lightning-Bloc Network                     │
+│                    DETR P2P Network Layer                    │
 ├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  ┌─────────────┐         ┌─────────────┐                    │
-│  │   Channel   │◄───────►│   Channel   │                    │
-│  │     Node    │         │     Node    │                    │
-│  └─────────────┘         └─────────────┘                    │
-│         ↕                       ↕                            │
-│  ┌─────────────┐         ┌─────────────┐                    │
-│  │  Watchtower │         │  Watchtower │                    │
-│  │   Monitor   │         │   Monitor   │                    │
-│  └─────────────┘         └─────────────┘                    │
-│                                                               │
-│  Components:                                                  │
-│  - Payment channels with HTLC support                         │
-│  - Routing algorithm (Dijkstra optimization)                  │
-│  - Watchtower network for security monitoring                 │
-│  - Fee collection and distribution                            │
-│  - Challenge-response mechanism                               │
-│                                                               │
-│  Performance:                                                 │
-│  - Multi-hop routing: up to 20 hops                          │
-│  - Network scale: 1000+ nodes                                │
-│  - Route calculation: <100ms for 1000 nodes                  │
-│  - Instant finality for payments                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │   DPeers     │  │   AEComms    │  │   StoréD     │      │
+│  │ (Discovery)  │  │ (Encrypt)    │  │ (Peer Cache) │      │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬──────┘      │
+│         │                  │                  │            │
+│         └──────────────────┼──────────────────┘            │
+│                            ↓                               │
+│                 ┌────────────────────┐                      │
+│                 │   detrp2p (Rust)   │                      │
+│                 │  Transport + DHT   │                      │
+│                 └─────────┬──────────┘                      │
+│                           ↓                                 │
+│                 ┌────────────────────┐                      │
+│                 │  etrid-protocol    │                      │
+│                 │  Message formats   │                      │
+│                 └─────────┬──────────┘                      │
+│                           ↓                                 │
+│                 ┌────────────────────┐                      │
+│                 │     Fluent         │                      │
+│                 │  Flow control      │                      │
+│                 └────────────────────┘                      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 **Key Features**:
-- Full routing algorithm with Dijkstra optimization
-- Multi-hop payments with capacity constraints
-- Alternative route finding for redundancy
-- Watchtower incentive system
-- 55 routing tests + 15 integration tests + 8 benchmarks
+- Kademlia-based discovery and routing in `detrp2p`
+- Encrypted transport via `aecomms` (X25519 + ChaCha20-Poly1305)
+- Peer registry + metadata (`dpeers`, `stored`)
+- Flow control and backpressure (`fluent`)
+- Protocol message definitions (`etrid-protocol`)
 
-**Location**: `01-detr-p2p/`, `07-transactions/lightning-bloc/`
+**Location**: `01-detr-p2p/`  
+**Integration Docs**: `01-detr-p2p/*_PBC_*`  
+**Related L2**: Lightning-Bloc lives in `07-transactions/lightning-bloc/`
 
 ---
 
@@ -361,21 +361,23 @@
 
 Each PBC is a specialized parachain for specific asset types:
 
-| PBC | Purpose | Bridge Type | Status |
+| PBC | Purpose | Bridge Type | Status (Repo) |
 |-----|---------|-------------|--------|
-| BTC-PBC | Bitcoin bridge | SPV + Multi-sig | ✅ Operational |
-| ETH-PBC | Ethereum bridge | Light client | ✅ Operational |
-| DOGE-PBC | Dogecoin bridge | SPV + Multi-sig | ✅ Operational |
-| SOL-PBC | Solana bridge | Light client | ✅ Operational |
-| XLM-PBC | Stellar bridge | Federation | ✅ Operational |
-| XRP-PBC | Ripple bridge | Federated side-chain | ✅ Operational |
-| BNB-PBC | BSC bridge | Light client | ✅ Operational |
-| TRX-PBC | Tron bridge | Light client | ✅ Operational |
-| ADA-PBC | Cardano bridge | Hydra integration | ✅ Operational |
-| LINK-PBC | Chainlink integration | Oracle network | ✅ Operational |
-| MATIC-PBC | Polygon bridge | Plasma + PoS | ✅ Operational |
-| SC-USDT-PBC | USDT stablecoin | ERC-20 bridge | ✅ Operational |
-| EDSC-PBC | EDSC stablecoin | Native + CCTP | ✅ Operational |
+| BTC-PBC | Bitcoin bridge | SPV + Multi-sig | 🟡 Implemented (repo) |
+| ETH-PBC | Ethereum bridge | Light client | 🟡 Implemented (repo) |
+| DOGE-PBC | Dogecoin bridge | SPV + Multi-sig | 🟡 Implemented (repo) |
+| SOL-PBC | Solana bridge | Light client | 🟡 Implemented (repo) |
+| XLM-PBC | Stellar bridge | Federation | 🟡 Implemented (repo) |
+| XRP-PBC | Ripple bridge | Federated side-chain | 🟡 Implemented (repo) |
+| BNB-PBC | BSC bridge | Light client | 🟡 Implemented (repo) |
+| TRX-PBC | Tron bridge | Light client | 🟡 Implemented (repo) |
+| ADA-PBC | Cardano bridge | Hydra integration | 🟡 Implemented (repo) |
+| LINK-PBC | Chainlink integration | Oracle network | 🟡 Implemented (repo) |
+| MATIC-PBC | Polygon bridge | Plasma + PoS | 🟡 Implemented (repo) |
+| SC-USDT-PBC | USDT stablecoin | ERC-20 bridge | 🟡 Implemented (repo) |
+| EDSC-PBC | EDSC stablecoin | Native + CCTP | 🟡 Implemented (repo) |
+
+**Note**: Status reflects code present in repo; network deployments are not running yet.
 
 ### Multi-Signature Bridge Custodians 🆕
 
@@ -387,9 +389,9 @@ Each PBC is a specialized parachain for specific asset types:
 │              Multi-Sig Bridge Security Layer                 │
 ├─────────────────────────────────────────────────────────────┤
 │                                                               │
-│  Custodian Set (M-of-N):                                     │
+│  Attester Set (M-of-N):                                      │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
-│  │ Custodian 1 │  │ Custodian 2 │  │ Custodian 3 │          │
+│  │ Attester 1  │  │ Attester 2  │  │ Attester 3  │          │
 │  └─────────────┘  └─────────────┘  └─────────────┘          │
 │         ↓                 ↓                 ↓                 │
 │  ┌────────────────────────────────────────────────────┐     │
@@ -398,18 +400,17 @@ Each PBC is a specialized parachain for specific asset types:
 │  │  Withdrawal Request:                               │     │
 │  │  - Amount: 10 BTC                                  │     │
 │  │  - Destination: bc1q...                            │     │
-│  │  - Approvals: [Cust1 ✓, Cust2 ✓, Cust3 ⏳]         │     │
+│  │  - Approvals: [Att1 ✓, Att2 ✓, Att3 ⏳]            │     │
 │  │                                                     │     │
 │  │  Status: 2 of 3 approvals                          │     │
-│  │  Action: Waiting for Custodian 3                   │     │
+│  │  Action: Waiting for Attester 3                    │     │
 │  └────────────────────────────────────────────────────┘     │
 │                           ↓                                   │
 │             Threshold Reached → Auto-Execute                 │
 │                                                               │
 │  Integrated Bridges:                                         │
-│  - Bitcoin Bridge (BTC-PBC)                                  │
-│  - EDSC Bridge (EDSC-PBC)                                    │
-│  - USDT Bridge (SC-USDT-PBC)                                 │
+│  - Bridge pallets wired to `pallet-bridge-attestation`       │
+│  - EDSC bridge contracts use AttesterRegistry                │
 │                                                               │
 │  Security Guarantees:                                        │
 │  - Threshold validation: 1 ≤ M ≤ N ≤ 10                     │
@@ -417,16 +418,17 @@ Each PBC is a specialized parachain for specific asset types:
 │  - Custodian authorization checks                            │
 │  - Replay attack prevention                                  │
 │                                                               │
-│  Test Coverage: 34 tests (100% passing)                      │
+│  Test Coverage: unit tests in `pallet-bridge-attestation`    │
+│  + EVM bridge tests in `contracts/ethereum/test/`            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 **Workflow**:
-1. Root sets custodians (M-of-N configuration)
-2. User initiates withdrawal request
-3. Custodians approve operation independently
-4. Automatic execution when threshold M is reached
-5. Funds released to destination
+1. Root/governance configures attesters (M-of-N configuration)
+2. User initiates cross-chain message
+3. Attesters sign off-chain and submit signatures on-chain
+4. Relayer submits once threshold M is reached
+5. Pallets verify and execute the message
 
 **Benefits**:
 - No single point of failure
@@ -442,19 +444,22 @@ Each PBC is a specialized parachain for specific asset types:
 
 **Purpose**: Monitor Lightning-Bloc channels and consensus state
 
-**Architecture**: [See Component 09 details]
+**Status**: 🟡 Implemented in `07-transactions/lightning-bloc/src/watchtower.rs` (library + examples); runtime/service wiring in progress  
+**Architecture**: See `07-transactions/lightning-bloc/ARCHITECTURE.md`
 
 ### Consensus Day (Component 12)
 
 **Purpose**: Annual on-chain governance event
 
-**Architecture**: [See Component 12 details]
+**Status**: ✅ Implemented in `12-consensus-day/` and wired in `05-multichain/primearc-core-chain/runtime`  
+**Architecture**: See `12-consensus-day/ARCHITECTURE.md`
 
 ### Nomination System (Component 11)
 
 **Purpose**: Delegated staking for validators
 
-**Architecture**: [See Component 11 details]
+**Status**: 🟡 Documented; runtime integration pending (see `11-peer-roles/staking/NOMINATION_SYSTEM.md`)  
+**Architecture**: See `11-peer-roles/ARCHITECTURE.md`
 
 ---
 
@@ -909,7 +914,7 @@ Reward: Challenger receives 1,000 ÉTR bounty ✅
 
 **Attack Vectors Addressed**:
 1. ✅ **51% Attack**: ASF consensus requires 2/3+ stake
-2. ✅ **Bridge Compromise**: Multi-sig custodians (M-of-N)
+2. ✅ **Bridge Compromise**: M-of-N attesters (pallet-bridge-attestation / AttesterRegistry)
 3. ✅ **Reentrancy Attack**: State locking in ËtwasmVM
 4. ✅ **Payment Channel Fraud**: Watchtower network
 5. ✅ **Governance Attack**: Quorum requirements + time-locks
@@ -937,7 +942,7 @@ Reward: Challenger receives 1,000 ÉTR bounty ✅
 - **Runtime**: FRAME pallets
 - **VM**: ËtwasmVM (WebAssembly)
 - **Database**: RocksDB / ParityDB
-- **Networking**: libp2p with QUIC
+- **Networking**: DETR P2P (custom) + Substrate networking
 
 ### Cryptography
 - **Signatures**: ed25519-dalek v2.2.0
@@ -983,7 +988,7 @@ Reward: Challenger receives 1,000 ÉTR bounty ✅
 2. Economic model finalization
 3. Token generation event (TGE) preparation
 4. **Exchange listings Phase 2-3**: Multi-chain DEX expansion + Mid-tier CEX applications
-   - See: [Exchange Expansion Master Plan](../EXCHANGE_EXPANSION_MASTER_PLAN.md)
+   - See: external roadmap (not tracked in repo)
 
 ### Long-Term (6-12 months)
 1. Mainnet launch
@@ -995,7 +1000,7 @@ Reward: Challenger receives 1,000 ÉTR bounty ✅
 
 ## References
 
-- **Whitepaper**: [docs/whitepaper/](../whitepaper/)
+- **Ivory Papers**: `docs/specifications/ivory-paper.md`
 - **API Reference**: [docs/API_REFERENCE.md](API_REFERENCE.md)
 - **User Guide**: [docs/USER_GUIDE.md](USER_GUIDE.md)
 - **Operator Guide**: [docs/OPERATOR_GUIDE.md](OPERATOR_GUIDE.md)
@@ -1004,6 +1009,6 @@ Reward: Challenger receives 1,000 ÉTR bounty ✅
 ---
 
 **Document Version**: 2.0
-**Last Updated**: October 22, 2025
-**Status**: Alpha Complete (100%)
+**Last Updated**: October 2025 (repo-aligned)
+**Status**: Alpha (core implemented; integration in progress)
 **Next Review**: After testnet deployment
